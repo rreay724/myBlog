@@ -8,7 +8,6 @@ export const UserContext = createContext(null)
 const UserProvider = (props) => {
   const [user, setUser] = useState()
   const [currentUser, setCurrentUser] = useState()
-  const [userExists, setUserExists] = useState(false)
   const db = getFirestore()
   const auth = getAuth()
 

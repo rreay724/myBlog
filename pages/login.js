@@ -1,7 +1,36 @@
-import React from 'react'
 import Link from 'next/link'
+import { useEffect, useContext, useState } from 'react'
+import { UserContext } from '../context/userContext'
+import { useRouter } from 'next/dist/client/router'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 
 const Login = () => {
+  const { user } = useContext(UserContext)
+  const router = useRouter()
+  const [email, setEmail] = useState()
+  const [password, setPassword] = useState()
+
+  useEffect(() => {
+    if (user) {
+      router.push('/')
+    }
+  }, [user])
+
+  async function login(e) {
+    e.preventDefault()
+    const auth = getAuth()
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code
+        const errorMessage = error.message
+      })
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <div className="rounded-1 h-[40rem] w-[30rem] rounded-xl border-2 border-gray-300">
@@ -16,6 +45,10 @@ const Login = () => {
               <input
                 placeholder="email"
                 className="h-8 w-72 border border-gray-400 px-2 focus:outline-none"
+                type="text"
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                }}
               />
             </div>
             <div className="my-4">
@@ -25,9 +58,16 @@ const Login = () => {
               <input
                 placeholder="password"
                 className="h-8 w-72 border border-gray-400 px-2 focus:outline-none"
+                type="password"
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                }}
               />
             </div>
-            <button className="w-full rounded-xl border bg-blue-400 py-2 px-6 text-white shadow-lg hover:bg-blue-500 active:scale-90">
+            <button
+              onClick={login}
+              className="w-full rounded-xl border bg-blue-400 py-2 px-6 text-white shadow-lg hover:bg-blue-500 active:scale-90"
+            >
               Login
             </button>
           </div>

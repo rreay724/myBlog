@@ -13,16 +13,19 @@ import {
   deleteDoc,
   getDoc,
 } from 'firebase/firestore'
+import { useContext } from 'react'
+import { UserContext } from '../context/userContext'
 
 const Signup = () => {
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
   const [firstName, setFirstName] = useState()
   const [lastName, setLastName] = useState()
-  const [user, setUser] = useState()
+  //   const [user, setUser] = useState()
   const [error, setError] = useState()
   const router = useRouter()
   const db = getFirestore()
+  const { user } = useContext(UserContext)
 
   const auth = getAuth()
 
@@ -43,20 +46,15 @@ const Signup = () => {
       })
       .then(() => {
         signInWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            const user = userCredential.user
-          })
+          .then((userCredential) => {})
           .catch((error) => {
             const errorCode = error.code
             const errorMessage = error.message
           })
       })
-      .then(() => {
-        setUser(auth.currentUser)
-      })
       .then(async () => {
-        await setDoc(doc(db, 'users', user?.email), {
-          email: user.email,
+        await setDoc(doc(db, 'users', email), {
+          email: email,
           firstName: firstName,
           lastName: lastName,
         }).then(() => {
@@ -67,7 +65,7 @@ const Signup = () => {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <div className="rounded-1 h-[40rem] w-[30rem] rounded-xl border-2 border-gray-300">
+      <div className="rounded-1 h-[40rem] w-[30rem] rounded-xl border-2 border-gray-300 shadow-lg">
         <div className="flex h-full w-full flex-col justify-center">
           <h1 className="mb-10 text-center text-2xl">myBlog Signup</h1>
 

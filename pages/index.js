@@ -1,16 +1,29 @@
 import Head from 'next/head'
-import { useContext } from 'react'
+import { useEffect, useContext } from 'react'
 import { UserContext } from '../context/userContext'
+import { useRouter } from 'next/dist/client/router'
+import { Header } from '../components/index'
 
 export default function Home() {
   const { user } = useContext(UserContext)
+  const router = useRouter()
   console.log('USER', user)
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login')
+    }
+  }, [user])
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
+    <div className="">
       <Head>
-        <title>Create Next App</title>
+        <title>myBlog</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <div className="sticky top-0">
+        <Header />
+      </div>
       Main page
     </div>
   )
