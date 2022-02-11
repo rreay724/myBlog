@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 import { app } from '../services/firebase'
 import { useRouter } from 'next/dist/client/router'
 import {
@@ -29,7 +33,6 @@ const Signup = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
-        setUser(userCredential.user)
         // ...
       })
       .catch((error) => {
@@ -38,13 +41,28 @@ const Signup = () => {
         console.log('ERROR SIGNING UP', errorCode + ' ' + errorMessage)
         setError('Email already in  use')
       })
-    await setDoc(doc(db, 'users', user?.uid), {
-      id: user?.uid,
-      firstName: firstName,
-      lastName: lastName,
-    }).then(() => {
-      router.push('/')
-    })
+      .then(() => {
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user
+          })
+          .catch((error) => {
+            const errorCode = error.code
+            const errorMessage = error.message
+          })
+      })
+      .then(() => {
+        setUser(auth.currentUser)
+      })
+      .then(async () => {
+        await setDoc(doc(db, 'users', user?.email), {
+          email: user.email,
+          firstName: firstName,
+          lastName: lastName,
+        }).then(() => {
+          router.push('/')
+        })
+      })
   }
 
   return (
