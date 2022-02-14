@@ -9,6 +9,7 @@ const Login = () => {
   const router = useRouter()
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
+  const [error, setError] = useState()
 
   useEffect(() => {
     if (user) {
@@ -23,11 +24,13 @@ const Login = () => {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user
+        router.push('/')
         // ...
       })
       .catch((error) => {
         const errorCode = error.code
         const errorMessage = error.message
+        setError(true)
       })
   }
 
@@ -72,6 +75,10 @@ const Login = () => {
             </button>
           </div>
           <div className="mt-10 text-center">
+            {error && (
+              <p className="pb-2 text-red-500">Email or password invalid</p>
+            )}
+
             <p>
               Not a member?{' '}
               <Link href="/signup">

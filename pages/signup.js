@@ -62,6 +62,7 @@ const Signup = () => {
             const errorCode = error.code
             const errorMessage = error.message
           })
+          .then(() => {})
     }
 
     {
