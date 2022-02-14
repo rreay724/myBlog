@@ -73,9 +73,11 @@ const Login = () => {
           </div>
           <div className="mt-10 text-center">
             <p>
-              Not a member?
+              Not a member?{' '}
               <Link href="/signup">
-                <p className="cursor-pointer text-blue-500">Sign up</p>
+                <span className="cursor-pointer text-blue-500 hover:underline">
+                  Sign up
+                </span>
               </Link>
             </p>
           </div>

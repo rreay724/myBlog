@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -6,33 +6,41 @@ import {
 } from 'firebase/auth'
 import { app } from '../services/firebase'
 import { useRouter } from 'next/dist/client/router'
-import {
-  doc,
-  setDoc,
-  getFirestore,
-  deleteDoc,
-  getDoc,
-} from 'firebase/firestore'
+import { doc, setDoc, getFirestore } from 'firebase/firestore'
 import { useContext } from 'react'
 import { UserContext } from '../context/userContext'
+import Link from 'next/link'
+import { submitUser } from '../services/graphql'
 
 const Signup = () => {
-  const [email, setEmail] = useState()
   const [password, setPassword] = useState()
-  const [firstName, setFirstName] = useState()
-  const [lastName, setLastName] = useState()
-  //   const [user, setUser] = useState()
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false)
   const [error, setError] = useState()
   const router = useRouter()
   const db = getFirestore()
   const { user } = useContext(UserContext)
+  const firstNameElement = useRef()
+  const lastNameElement = useRef()
+  const emailElement = useRef()
 
   const auth = getAuth()
 
   console.log('User', user)
 
-  async function signUp(e) {
-    e.preventDefault()
+  async function signUp() {
+    const { value: firstName } = firstNameElement.current
+    const { value: lastName } = lastNameElement.current
+    const { value: email } = emailElement.current
+
+    const userObj = { firstName, lastName, email }
+
+    submitUser(userObj).then((res) => {
+      setShowSuccessMessage(true)
+      setTimeout(() => {
+        setShowSuccessMessage(false)
+      }, 3000)
+    })
+
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
@@ -78,9 +86,7 @@ const Signup = () => {
                 placeholder="Bobby"
                 className="h-8 w-72 border border-gray-400 px-2 focus:outline-none"
                 name="firstName"
-                onChange={(e) => {
-                  setFirstName(e.target.value)
-                }}
+                ref={firstNameElement}
               />
             </div>
             <div className="my-4">
@@ -91,9 +97,7 @@ const Signup = () => {
                 placeholder="Reay"
                 className="h-8 w-72 border border-gray-400 px-2 focus:outline-none"
                 name="lastName"
-                onChange={(e) => {
-                  setLastName(e.target.value)
-                }}
+                ref={lastNameElement}
               />
             </div>
             <div className="my-4">
@@ -104,9 +108,7 @@ const Signup = () => {
                 placeholder="emailmcemail@gmail.com"
                 className="h-8 w-72 border border-gray-400 px-2 focus:outline-none"
                 name="email"
-                onChange={(e) => {
-                  setEmail(e.target.value)
-                }}
+                ref={emailElement}
               />
             </div>
             <div className="my-4">
@@ -129,6 +131,14 @@ const Signup = () => {
             >
               Sign up
             </button>
+            <p className="mt-2">
+              Already a member?{' '}
+              <Link href="/login">
+                <span className="cursor-pointer text-blue-500 hover:underline">
+                  Login
+                </span>
+              </Link>
+            </p>
           </div>
         </div>
       </div>
