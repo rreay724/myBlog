@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useContext, useEffect } from 'react'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -7,18 +7,18 @@ import {
 import { app } from '../services/firebase'
 import { useRouter } from 'next/dist/client/router'
 import { doc, setDoc, getFirestore } from 'firebase/firestore'
-import { useContext } from 'react'
 import { UserContext } from '../context/userContext'
 import Link from 'next/link'
 import { submitUser } from '../services/graphql'
 
 const Signup = () => {
+  const { user } = useContext(UserContext)
+
   const [password, setPassword] = useState()
   const [showSuccessMessage, setShowSuccessMessage] = useState(false)
-  const [error, setError] = useState()
+  const [error, setError] = useState(false)
   const router = useRouter()
   const db = getFirestore()
-  const { user } = useContext(UserContext)
   const firstNameElement = useRef()
   const lastNameElement = useRef()
   const emailElement = useRef()
@@ -49,26 +49,32 @@ const Signup = () => {
       .catch((error) => {
         const errorCode = error.code
         const errorMessage = error.message
+        setError(true)
+
         console.log('ERROR SIGNING UP', errorCode + ' ' + errorMessage)
-        setError('Email already in  use')
       })
-      .then(() => {
+
+    {
+      !error &&
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {})
           .catch((error) => {
             const errorCode = error.code
             const errorMessage = error.message
           })
-      })
-      .then(async () => {
-        await setDoc(doc(db, 'users', email), {
+    }
+
+    {
+      !error &&
+        (await setDoc(doc(db, 'users', email), {
           email: email,
           firstName: firstName,
           lastName: lastName,
         }).then(() => {
           router.push('/')
-        })
-      })
+        }))
+    }
+    setError(false)
   }
 
   return (
@@ -139,6 +145,11 @@ const Signup = () => {
                 </span>
               </Link>
             </p>
+            {error && (
+              <p className="pt-2 text-red-500">
+                An account with this email already exists
+              </p>
+            )}
           </div>
         </div>
       </div>
